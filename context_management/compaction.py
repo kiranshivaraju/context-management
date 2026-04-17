@@ -44,7 +44,7 @@ class CompactionEngine:
         if state is None:
             return False
         threshold = self._config.max_context_tokens * self._config.compaction_trigger_ratio
-        return state.total_token_count > threshold
+        return bool(state.total_token_count > threshold)
 
     async def run_compaction(
         self,

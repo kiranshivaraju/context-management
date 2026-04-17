@@ -51,7 +51,7 @@ class AnthropicProvider(LLMProvider):
                 messages=[{"role": "user", "content": user_prompt}],
                 max_tokens=max_output_tokens,
             )
-            return response.content[0].text
+            return str(response.content[0].text)
         except Exception as e:
             raise LLMProviderError(f"Anthropic API error: {e}") from e
 
@@ -85,7 +85,10 @@ class OpenAIProvider(LLMProvider):
                 ],
                 max_tokens=max_output_tokens,
             )
-            return response.choices[0].message.content
+            content = response.choices[0].message.content
+            if content is None:
+                raise LLMProviderError("OpenAI returned no content")
+            return str(content)
         except Exception as e:
             raise LLMProviderError(f"OpenAI API error: {e}") from e
 

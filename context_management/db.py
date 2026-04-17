@@ -7,6 +7,7 @@ from collections.abc import AsyncGenerator
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -18,8 +19,8 @@ class DatabaseManager:
 
     def __init__(self, database_url: str) -> None:
         self._database_url = database_url
-        self._engine = None
-        self._session_factory = None
+        self._engine: AsyncEngine | None = None
+        self._session_factory: async_sessionmaker[AsyncSession] | None = None
 
     async def initialize(self) -> None:
         """Create async engine, verify connectivity, set up session factory."""

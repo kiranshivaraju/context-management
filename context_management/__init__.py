@@ -400,7 +400,8 @@ class MemoryManager:
         else:
             stmt = stmt.where(SourceStateModel.thread_id.is_(None))
         result = await session.execute(stmt)
-        return result.scalar_one_or_none()
+        state: SourceStateModel | None = result.scalar_one_or_none()
+        return state
 
     @staticmethod
     async def _next_sequence_num(

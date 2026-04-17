@@ -1,0 +1,144 @@
+{
+  "config": {
+    "max_context_tokens": 1200,
+    "compaction_trigger_ratio": 0.75,
+    "compaction_target_ratio": 0.50,
+    "protected_message_count": 3,
+    "memory_budget": 150,
+    "summary_budget": 200,
+    "output_reserve": 100,
+    "memory_compaction_count_threshold": 25,
+    "memory_compaction_token_threshold": 800
+  },
+  "scenarios": [
+    {
+      "name": "Engineering team planning — long conversation",
+      "source_id": "eng-team",
+      "description": "Extended team discussion across infra, frontend, backend, security, and deployment. Should trigger multiple message compactions and memory extraction.",
+      "manual_memories": [],
+      "conversation": [
+        { "role": "user", "user_id": "alice", "content": "Hey everyone. I've been evaluating databases for the new project. I think we should go with PostgreSQL for the main store and Redis for caching." },
+        { "role": "assistant", "content": "Great choices. PostgreSQL gives you strong ACID compliance and excellent JSON support. Redis is perfect for session caching and rate limiting." },
+        { "role": "user", "user_id": "bob", "content": "Agreed on PostgreSQL. For the backend framework, I'd recommend FastAPI. We used it at my last company and it handles async really well. Our API deadline is April 15th." },
+        { "role": "assistant", "content": "FastAPI is a solid pick for async Python APIs. April 15th gives you about five weeks — should be doable for the core endpoints." },
+        { "role": "user", "user_id": "alice", "content": "Perfect. I'll own the database schema and migrations. Bob, can you handle the API layer? Charlie will join next week to do the frontend in React." },
+        { "role": "assistant", "content": "Sounds like a clear division of work. Alice on DB, Bob on API, Charlie on React frontend. Make sure to align on the API contract before Charlie starts." },
+        { "role": "user", "user_id": "bob", "content": "Will do. I'll draft the OpenAPI spec by Friday. Also, we decided all endpoints must require JWT auth — no exceptions. Token expiry is 15 minutes for access, 7 days for refresh." },
+        { "role": "assistant", "content": "Good security posture. JWT with short-lived access tokens and refresh rotation is industry standard. Make sure to store refresh tokens server-side." },
+        { "role": "user", "user_id": "alice", "content": "One more thing — the staging server is at staging.internal.acme.com and the CI pipeline runs on GitHub Actions. Bob, please set up the workflow file." },
+        { "role": "assistant", "content": "Got it. GitHub Actions for CI, staging at staging.internal.acme.com. Bob will set up the workflow. Make sure to include linting, tests, and a coverage gate." },
+        { "role": "user", "user_id": "bob", "content": "Already on it. I'm also adding Dependabot for dependency security scanning. Our minimum test coverage target is 80 percent." },
+        { "role": "assistant", "content": "Excellent. Dependabot plus an 80 percent coverage gate will keep the codebase healthy. You're well set up for a clean development cycle." },
+        { "role": "user", "user_id": "alice", "content": "Let's also document that we're using Alembic for migrations and pytest for testing. These are non-negotiable standards for this project." },
+        { "role": "assistant", "content": "Noted — Alembic for migrations, pytest for testing. Having non-negotiable standards early prevents tooling debates later." },
+        { "role": "user", "user_id": "bob", "content": "Last infra item: the production database will be hosted on AWS RDS, and we need to budget for a db.r6g.large instance. Alice, can you estimate storage needs?" },
+        { "role": "assistant", "content": "AWS RDS with db.r6g.large is a good starting point. Alice should estimate based on expected row counts and index sizes for the first six months." },
+
+        { "role": "user", "user_id": "charlie", "content": "Hey team, I just joined! I'll be handling the frontend in React with TypeScript. What component library are we using?" },
+        { "role": "assistant", "content": "Welcome Charlie! The team hasn't picked a component library yet. Popular options for React plus TypeScript are Radix UI, shadcn/ui, or Material UI." },
+        { "role": "user", "user_id": "alice", "content": "Let's go with shadcn/ui — it's flexible and doesn't lock us into a heavy dependency. Charlie, also use Tailwind CSS for styling." },
+        { "role": "assistant", "content": "Good call. shadcn/ui with Tailwind gives you full control over the design system without pulling in a giant UI framework." },
+        { "role": "user", "user_id": "charlie", "content": "Perfect, I love Tailwind. I'll set up the frontend project with Vite as the bundler. Also, I'll use React Router v7 for navigation and TanStack Query for data fetching." },
+        { "role": "assistant", "content": "Vite, React Router v7, and TanStack Query is a modern and performant stack. Make sure to configure API base URL via environment variables." },
+        { "role": "user", "user_id": "bob", "content": "Charlie, the API base URL for local dev is http://localhost:8000/api/v1. I'll add CORS middleware on the FastAPI side. Also, all API responses follow our standard envelope: {data, error, meta}." },
+        { "role": "assistant", "content": "Consistent response envelopes make frontend integration much smoother. The {data, error, meta} pattern is clean and predictable." },
+        { "role": "user", "user_id": "alice", "content": "Quick update: I finished the initial database schema. We have five tables: users, refresh_tokens, projects, tasks, and audit_log. All use UUID primary keys and have created_at plus updated_at timestamps." },
+        { "role": "assistant", "content": "Five tables is a solid MVP schema. UUIDs and timestamps on every table is best practice. Make sure audit_log is append-only with no updates or deletes." },
+        { "role": "user", "user_id": "bob", "content": "Nice work Alice. I've got the first three API endpoints ready: POST /auth/register, POST /auth/login, and POST /auth/refresh. All tested with 92 percent coverage." },
+        { "role": "assistant", "content": "92 percent coverage on auth endpoints is excellent. These three cover the core auth flow. Next up would be the CRUD endpoints for projects and tasks." },
+
+        { "role": "user", "user_id": "charlie", "content": "Frontend update: I've built the login page, registration page, and the main dashboard layout. Using React Hook Form for validation. The dashboard has a sidebar nav with Projects, Tasks, and Settings sections." },
+        { "role": "assistant", "content": "React Hook Form is great for performant forms. The dashboard layout with sidebar nav sounds well organized. Make sure the auth token refresh is handled transparently in the API client." },
+        { "role": "user", "user_id": "alice", "content": "Team standup notes: we're on track for the April 15th deadline. Remaining work is projects CRUD, tasks CRUD, and the data export feature. Bob, how long for the remaining endpoints?" },
+        { "role": "assistant", "content": "Good to hear you're on track. The remaining CRUD endpoints plus data export should be scoped carefully — export might need background job processing for large datasets." },
+        { "role": "user", "user_id": "bob", "content": "I estimate three days for projects CRUD, two days for tasks CRUD, and three days for the export feature. Export will support CSV and JSON formats using a Celery worker with Redis as the broker." },
+        { "role": "assistant", "content": "Eight days total for the remaining backend work fits within the April 15th deadline. Celery plus Redis for async exports is the right approach for handling large datasets." },
+        { "role": "user", "user_id": "alice", "content": "Agreed. I'll also set up the Celery worker config and the Redis connection. Our Redis instance is on AWS ElastiCache, endpoint is redis.internal.acme.com port 6379." },
+        { "role": "assistant", "content": "ElastiCache for Redis is reliable and low-latency within AWS. Make sure to use TLS for the connection and store the endpoint in environment variables, not in code." },
+        { "role": "user", "user_id": "charlie", "content": "I need the API contract for projects and tasks to start building the frontend CRUD pages. Bob, can you share the OpenAPI spec?" },
+        { "role": "assistant", "content": "Getting the OpenAPI spec early is key for parallel frontend and backend work. Bob should publish it to a shared location or set up Swagger UI on the dev server." },
+        { "role": "user", "user_id": "bob", "content": "Just pushed the OpenAPI spec to the repo at docs/openapi.yaml. Swagger UI is live at localhost:8000/docs. Charlie, you can generate TypeScript types from it using openapi-typescript." },
+        { "role": "assistant", "content": "openapi-typescript will keep your frontend types in sync with the API. Set it up as a build step so types auto-regenerate when the spec changes." },
+
+        { "role": "user", "user_id": "alice", "content": "Security review finding: we need to add rate limiting to the auth endpoints. I propose 5 login attempts per minute per IP, and 10 registration attempts per hour per IP." },
+        { "role": "assistant", "content": "Those rate limits are reasonable. Use a sliding window algorithm backed by Redis. Also consider adding a CAPTCHA after 3 failed login attempts." },
+        { "role": "user", "user_id": "bob", "content": "I'll implement rate limiting using slowapi library which integrates nicely with FastAPI. Storing counters in Redis. Also adding request ID middleware for tracing." },
+        { "role": "assistant", "content": "slowapi is a good choice for FastAPI rate limiting. Request ID middleware will be invaluable for debugging production issues across services." },
+        { "role": "user", "user_id": "charlie", "content": "Frontend is almost done. I added error boundary components, loading skeletons, and toast notifications for API errors. Using Zustand for global state management." },
+        { "role": "assistant", "content": "Zustand is lightweight and pairs well with TanStack Query. Error boundaries and loading states make the app feel polished. Good attention to UX." },
+        { "role": "user", "user_id": "alice", "content": "Final architecture decision: we're deploying with Docker Compose for local dev and ECS Fargate for production. I'll write the Dockerfiles and compose config." },
+        { "role": "assistant", "content": "Docker Compose for dev and ECS Fargate for prod is a clean separation. Fargate removes the need to manage EC2 instances. Make sure health checks are configured properly." },
+
+        { "role": "user", "user_id": "bob", "content": "Projects CRUD is done. Four endpoints: GET /projects, POST /projects, PUT /projects/:id, DELETE /projects/:id. All with proper validation and 88 percent coverage." },
+        { "role": "assistant", "content": "Four clean CRUD endpoints with 88 percent coverage. Good progress. Make sure DELETE is a soft-delete using the deleted_at pattern." },
+        { "role": "user", "user_id": "alice", "content": "I added a project_members junction table for multi-user project access. Each project can have multiple members with roles: owner, editor, or viewer." },
+        { "role": "assistant", "content": "Junction table with role-based access is the right pattern. Make sure the owner role is required and cannot be removed from the last owner." },
+        { "role": "user", "user_id": "charlie", "content": "I built the project list page and project detail view. The list supports filtering by status and sorting by name or created date. Detail view shows tasks grouped by status." },
+        { "role": "assistant", "content": "Filtering plus sorting on the list page is essential for usability. Grouping tasks by status in the detail view gives a natural Kanban-like overview." },
+        { "role": "user", "user_id": "bob", "content": "Tasks CRUD is also done. Same pattern as projects. Added a status field with values: todo, in_progress, done. Tasks belong to a project via project_id foreign key." },
+        { "role": "assistant", "content": "Clean task model with three statuses and project FK. Consider adding an assignee_id field later for task ownership tracking." },
+        { "role": "user", "user_id": "alice", "content": "Good idea on assignee. I added assignee_id as a nullable FK to users. Also added a priority field with values: low, medium, high, urgent. And a due_date field." },
+        { "role": "assistant", "content": "Priority and due_date round out the task model nicely. The nullable assignee_id lets tasks exist without being assigned initially." },
+
+        { "role": "user", "user_id": "bob", "content": "Export feature is ready. Two endpoints: POST /exports to start an async job, GET /exports/:id to check status and download. Celery processes the job in the background." },
+        { "role": "assistant", "content": "Async export with status polling is clean. Make sure the download link has a reasonable TTL and the exported files are cleaned up after 24 hours." },
+        { "role": "user", "user_id": "charlie", "content": "I built the export UI. Users select format CSV or JSON, choose date range filters, then click Export. A progress bar shows the job status via polling the GET endpoint every 2 seconds." },
+        { "role": "assistant", "content": "Progress bar with polling is good UX for async jobs. Consider adding a toast notification when the export completes so users can navigate away." },
+        { "role": "user", "user_id": "alice", "content": "All migrations are up to date. We now have seven tables total: users, refresh_tokens, projects, project_members, tasks, exports, and audit_log. Running smoothly on RDS." },
+        { "role": "assistant", "content": "Seven tables is still a manageable schema. Good that migrations are current. Make sure to snapshot the RDS instance before any future schema changes." },
+        { "role": "user", "user_id": "bob", "content": "Overall API coverage is now at 91 percent across all endpoints. I also added integration tests for the full auth flow and the export pipeline. Total test count is 147." },
+        { "role": "assistant", "content": "91 percent coverage and 147 tests is very solid for an MVP. Integration tests on auth and export catch the most critical user flows." },
+
+        { "role": "user", "user_id": "alice", "content": "Team, we hit the April 15th deadline! Everything is deployed to staging. Let me list what we shipped: user auth with JWT, project CRUD with role-based access, task management with priorities, and async CSV/JSON exports." },
+        { "role": "assistant", "content": "Congratulations on hitting the deadline! That's a complete MVP feature set. Time to start user testing on staging before the production launch." },
+        { "role": "user", "user_id": "charlie", "content": "I'm writing end-to-end tests using Playwright. Already have 12 E2E tests covering registration, login, project creation, task management, and export download. Running headless in CI." },
+        { "role": "assistant", "content": "Playwright for E2E is excellent. 12 tests covering the core flows gives good confidence. Make sure to test edge cases like expired tokens and empty project lists." },
+        { "role": "user", "user_id": "bob", "content": "Performance note: I added database connection pooling with min 5 and max 20 connections. Also added a health check endpoint at GET /health that returns DB and Redis status." },
+        { "role": "assistant", "content": "Connection pooling config is important for production. The health check endpoint covering both DB and Redis is essential for container orchestration liveness probes." },
+        { "role": "user", "user_id": "alice", "content": "Monitoring setup: I configured Datadog for APM and log aggregation. Dashboard tracks request latency, error rates, and database query performance. Alert thresholds are p99 latency above 500ms and error rate above 1 percent." },
+        { "role": "assistant", "content": "Datadog for APM plus alerting on p99 latency and error rate is production-ready monitoring. Make sure to set up PagerDuty or Slack integration for the alerts." },
+        { "role": "user", "user_id": "bob", "content": "Added Sentry for error tracking on both frontend and backend. Also configured structured logging with correlation IDs that match the request ID middleware we added earlier." },
+        { "role": "assistant", "content": "Sentry plus structured logging with correlation IDs gives full observability. You can now trace any error from the frontend through the API to the database query." },
+        { "role": "user", "user_id": "charlie", "content": "Last frontend item: I added a dark mode toggle that persists in localStorage. The theme uses CSS custom properties so it works with all our shadcn/ui components. Also added keyboard shortcuts: Ctrl+K for search, Ctrl+N for new task." },
+        { "role": "assistant", "content": "Dark mode with CSS custom properties is the cleanest approach. Keyboard shortcuts for power users are a nice touch. Make sure the shortcuts don't conflict with browser defaults." }
+      ]
+    },
+    {
+      "name": "Product decisions with manual memories",
+      "source_id": "product-team",
+      "description": "Shorter conversation with pre-loaded memories — tests that memories appear in assembled context.",
+      "manual_memories": [
+        { "content": "Company name is Acme Corp", "attributed_user_id": null },
+        { "content": "Target launch date is June 1st 2026", "attributed_user_id": "pm-sarah" },
+        { "content": "Pricing model is freemium with $29/mo pro tier", "attributed_user_id": "pm-sarah" }
+      ],
+      "conversation": [
+        { "role": "user", "user_id": "pm-sarah", "content": "Quick sync on the product roadmap. We're launching the MVP on June 1st with three core features: user auth, dashboard, and data export." },
+        { "role": "assistant", "content": "Three features for the MVP sounds focused. Auth is foundational, dashboard provides immediate value, and data export covers a common enterprise requirement." },
+        { "role": "user", "user_id": "designer-mike", "content": "I'll have the dashboard mockups ready by next Monday. The design system uses Tailwind CSS with our custom Acme theme tokens." },
+        { "role": "assistant", "content": "Great, Tailwind with custom theme tokens keeps the UI consistent. Having mockups by Monday gives engineering a full week head start." },
+        { "role": "user", "user_id": "pm-sarah", "content": "One constraint: the export feature must support CSV and JSON formats. Excel can wait for v2. Also, exports should be async for large datasets — use a job queue." },
+        { "role": "assistant", "content": "CSV and JSON for v1, Excel deferred. Async exports via a job queue is the right call for large datasets — prevents request timeouts." }
+      ]
+    },
+    {
+      "name": "Thread test — debug session",
+      "source_id": "eng-team",
+      "description": "Uses same source_id as scenario 1 — tests memories carry across. Spawns a focused debug thread.",
+      "manual_memories": [],
+      "thread": {
+        "thread_id": "debug-session-1",
+        "spawn_message": {
+          "user_id": "bob",
+          "content": "I'm hitting a weird bug — the JWT refresh endpoint returns 401 even with a valid refresh token. Let me dig into this."
+        }
+      },
+      "conversation": [
+        { "role": "user", "user_id": "bob", "content": "Found it. The token validation was comparing expiry as a string instead of a timestamp. Classic bug in jwt_utils.py line 42." },
+        { "role": "assistant", "content": "That's a common one. Make sure to parse the exp claim as a Unix timestamp integer, not a string comparison." },
+        { "role": "user", "user_id": "bob", "content": "Fixed and added a regression test. I'm also adding type hints to the entire jwt_utils module to prevent this kind of thing in the future." },
+        { "role": "assistant", "content": "Good fix. Type hints on the token payload will catch this at lint time. Make sure the regression test covers both expired and valid tokens." }
+      ]
+    }
+  ]
+}

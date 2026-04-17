@@ -162,9 +162,9 @@ class TestAssemble:
 
         result = await assembler.assemble("src-1", None, "System", "Current")
 
-        # First message (after system) should contain memories
-        system_msgs = [m for m in result.messages if m["role"] == "system"]
-        assert any("PostgreSQL" in m["content"] for m in system_msgs)
+        # Memories are folded into the enriched system_prompt, not the messages list
+        assert "PostgreSQL" in result.system_prompt
+        assert all(m["role"] != "system" for m in result.messages)
 
     @pytest.mark.asyncio
     async def test_summaries_included_when_present(self) -> None:
@@ -181,8 +181,9 @@ class TestAssemble:
 
         result = await assembler.assemble("src-1", None, "System", "Current")
 
-        system_msgs = [m for m in result.messages if m["role"] == "system"]
-        assert any("compaction" in m["content"] for m in system_msgs)
+        # Summaries are folded into the enriched system_prompt
+        assert "compaction" in result.system_prompt
+        assert all(m["role"] != "system" for m in result.messages)
 
     @pytest.mark.asyncio
     async def test_memory_budget_respected(self) -> None:
@@ -242,7 +243,7 @@ class TestAssemble:
 
     @pytest.mark.asyncio
     async def test_message_order(self) -> None:
-        """Messages should be: [memories] [summaries] [older] [recent]."""
+        """system_prompt carries [base] [memories] [summaries]; messages are [older] [recent]."""
         cfg = _make_config()
         cfg.protected_message_count = 2
         tc = _make_token_counter(10)
@@ -261,9 +262,11 @@ class TestAssemble:
 
         # Last message should be the last recent message (msg-4)
         assert "msg-4" in result.messages[-1]["content"]
-        # Memories should come before summaries, both before conversation messages
-        contents = [m["content"] for m in result.messages]
-        memory_idx = next(i for i, c in enumerate(contents) if "PostgreSQL" in c)
-        summary_idx = next(i for i, c in enumerate(contents) if "Earlier discussion" in c)
-        last_idx = len(contents) - 1
-        assert memory_idx < summary_idx < last_idx
+        # System prompt should carry base -> memories -> summaries in that order
+        sp = result.system_prompt
+        base_idx = sp.index("System")
+        memory_idx = sp.index("PostgreSQL")
+        summary_idx = sp.index("Earlier discussion")
+        assert base_idx < memory_idx < summary_idx
+        # No system-role entries leak into messages (Anthropic-incompatible)
+        assert all(m["role"] != "system" for m in result.messages)

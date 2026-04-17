@@ -111,18 +111,18 @@ class ContextAssembler:
             budget -= m.token_count
         breakdown["older_messages"] = older_tokens
 
-        # 6. Assemble final message list
-        messages: list[dict[str, str]] = []
+        # 6. Assemble final message list (user/assistant only — SDK-agnostic)
+        #    Memories and summaries are prepended to the system prompt so callers
+        #    can pass `system=ctx.system_prompt, messages=ctx.messages` to either
+        #    Anthropic (which rejects system-role entries in `messages`) or OpenAI.
+        system_sections: list[str] = [system_prompt]
         if memory_block:
-            messages.append({
-                "role": "system",
-                "content": self._format_memories_block(memory_block),
-            })
+            system_sections.append(self._format_memories_block(memory_block))
         if summary_block:
-            messages.append({
-                "role": "system",
-                "content": self._format_summaries_block(summary_block),
-            })
+            system_sections.append(self._format_summaries_block(summary_block))
+        enriched_system_prompt = "\n\n".join(system_sections)
+
+        messages: list[dict[str, str]] = []
         for m in older_block:
             messages.append(self._format_message(m))
         for m in recent_msgs:
@@ -131,7 +131,7 @@ class ContextAssembler:
         total_tokens = sum(breakdown.values())
 
         return AssembledContext(
-            system_prompt=system_prompt,
+            system_prompt=enriched_system_prompt,
             messages=messages,
             total_tokens=total_tokens,
             token_breakdown=breakdown,

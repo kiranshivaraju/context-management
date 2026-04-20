@@ -74,28 +74,31 @@ class ContextAssembler:
         breakdown["recent_messages"] = recent_tokens
         budget -= recent_tokens
 
-        # 3. Memories (capped)
+        # 3. Memories (capped). Skip oversized entries instead of aborting so
+        # an early large memory doesn't starve the block.
         memories = await self._memory_store.get_active(source_id)
         memory_block: list[Any] = []
         memory_tokens = 0
         memory_cap = min(self._config.memory_budget, max(budget, 0))
         for m in memories:
             if memory_tokens + m.token_count > memory_cap:
-                break
+                continue
             memory_block.append(m)
             memory_tokens += m.token_count
         breakdown["memories"] = memory_tokens
         budget -= memory_tokens
 
-        # 4. Compaction summaries (capped)
+        # 4. Compaction summaries (capped). Iterate newest-first so the most
+        # recent summaries win the budget; skip oversized entries; restore
+        # chronological order before emitting.
         summaries = await self._get_summaries(source_id, thread_id)
         summary_block: list[Any] = []
         summary_tokens = 0
         summary_cap = min(self._config.summary_budget, max(budget, 0))
-        for s in summaries:
+        for s in reversed(summaries):
             if summary_tokens + s.token_count > summary_cap:
-                break
-            summary_block.append(s)
+                continue
+            summary_block.insert(0, s)
             summary_tokens += s.token_count
         breakdown["summaries"] = summary_tokens
         budget -= summary_tokens

@@ -39,12 +39,19 @@ class CompactionEngine:
         self._config = config
 
     async def should_compact(self, source_id: str, thread_id: str | None) -> bool:
-        """Check if compaction should trigger."""
-        state = await self._get_source_state(source_id, thread_id)
-        if state is None:
+        """Trigger on the active (non-compacted) message buffer only.
+
+        Summaries sit in separate storage and are budgeted separately during
+        context assembly; counting them toward the trigger would make
+        compaction fire every turn once accumulated summaries exceed the
+        threshold (the summary created by each compaction feeds the next).
+        """
+        messages = await self._get_active_messages(source_id, thread_id)
+        if not messages:
             return False
+        active_tokens = sum(m.token_count for m in messages)
         threshold = self._config.max_context_tokens * self._config.compaction_trigger_ratio
-        return bool(state.total_token_count > threshold)
+        return bool(active_tokens > threshold)
 
     async def run_compaction(
         self,

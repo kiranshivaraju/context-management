@@ -48,8 +48,9 @@ class TestShouldCompact:
         cfg = _make_config()
         engine = CompactionEngine(MagicMock(), MagicMock(), MagicMock(), MagicMock(), cfg)
 
-        state = _make_source_state(total_tokens=100_000)  # below 135K
-        engine._get_source_state = AsyncMock(return_value=state)
+        # Active-message tokens sum to 100_000, below 135_000 threshold
+        msgs = [_make_message(i, tokens=10_000) for i in range(10)]
+        engine._get_active_messages = AsyncMock(return_value=msgs)
 
         result = await engine.should_compact("src-1", None)
         assert result is False
@@ -59,18 +60,19 @@ class TestShouldCompact:
         cfg = _make_config()
         engine = CompactionEngine(MagicMock(), MagicMock(), MagicMock(), MagicMock(), cfg)
 
-        state = _make_source_state(total_tokens=140_000)  # above 135K
-        engine._get_source_state = AsyncMock(return_value=state)
+        # Active-message tokens sum to 140_000, above 135_000 threshold
+        msgs = [_make_message(i, tokens=14_000) for i in range(10)]
+        engine._get_active_messages = AsyncMock(return_value=msgs)
 
         result = await engine.should_compact("src-1", None)
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_no_source_state_returns_false(self) -> None:
+    async def test_no_active_messages_returns_false(self) -> None:
         cfg = _make_config()
         engine = CompactionEngine(MagicMock(), MagicMock(), MagicMock(), MagicMock(), cfg)
 
-        engine._get_source_state = AsyncMock(return_value=None)
+        engine._get_active_messages = AsyncMock(return_value=[])
 
         result = await engine.should_compact("src-1", None)
         assert result is False

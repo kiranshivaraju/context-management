@@ -7,11 +7,14 @@ import inspect
 
 
 def _load_migration():
-    """Import the migration module."""
-    spec = importlib.util.spec_from_file_location(
-        "migration_001",
-        "alembic/versions/001_initial_schema.py",
-    )
+    """Import the migration module shipped inside the package."""
+    from pathlib import Path
+
+    import context_management
+
+    pkg_root = Path(context_management.__file__).resolve().parent
+    migration_path = pkg_root / "alembic" / "versions" / "001_initial_schema.py"
+    spec = importlib.util.spec_from_file_location("migration_001", migration_path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod

@@ -23,9 +23,20 @@ dev = [
     "mypy",
 ]
 
+[project.scripts]
+context-management = "context_management.cli:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# Ensure the alembic/ directory (env.py, versions/*.py, script.py.mako if added)
+# ships inside the wheel so `context-management migrate` works post-install.
+packages = ["context_management"]
+include = [
+    "context_management/alembic/**",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

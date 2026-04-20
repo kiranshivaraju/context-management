@@ -66,17 +66,25 @@ The library needs 4 tables in your Postgres. They don't create themselves.
 
 > **⚠️ Required step.** Without it, `mm.initialize()` will fail with `relation "messages" does not exist`.
 
-Alembic lives inside this repo, not inside the installed Python package. Until a migration CLI ships, the path is to clone this repo once in your deploy/CI environment and run alembic from it against your DB:
+Installing the package provides a `context-management` CLI. Run the migration against the same `DATABASE_URL` your service will use:
 
 ```bash
-git clone https://github.com/kiranshivaraju/context-management.git
-cd context-management
 export DATABASE_URL=<your service's Postgres URL>
-uv sync
-uv run alembic upgrade head
+uv run context-management migrate
+# or, with plain pip:
+context-management migrate
 ```
 
-Re-run `alembic upgrade head` after every library upgrade that bumps the schema.
+Re-run after every library upgrade that bumps the schema.
+
+Other CLI subcommands:
+
+```bash
+context-management current          # show the current revision
+context-management history          # show migration history
+context-management downgrade -1     # step back one migration
+context-management --help           # full reference
+```
 
 ### 4. Use it in code
 
@@ -215,6 +223,11 @@ uv sync --extra dev
 uv sync --extra anthropic   # or --extra openai
 
 export DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/context_management
+
+# Either the packaged CLI:
+uv run context-management migrate
+
+# ...or the raw alembic CLI (uses alembic.ini at the repo root):
 uv run alembic upgrade head
 ```
 
@@ -242,6 +255,7 @@ GitHub Actions runs on every push and PR: mypy, pytest against a Postgres servic
 .
 ├── context_management/       # library source
 │   ├── __init__.py           # MemoryManager facade + public exports
+│   ├── cli.py                # context-management CLI (migrations)
 │   ├── config.py             # MemoryConfig (Pydantic)
 │   ├── enums.py              # MessageRole
 │   ├── exceptions.py         # MemoryManagerError and subclasses
@@ -252,8 +266,8 @@ GitHub Actions runs on every push and PR: mypy, pytest against a Postgres servic
 │   ├── prompts.py            # all prompt templates
 │   ├── compaction.py         # CompactionEngine
 │   ├── context.py            # ContextAssembler
-│   └── memory.py             # MemoryStore (CRUD + extraction + consolidation)
-├── alembic/                  # schema migrations
+│   ├── memory.py             # MemoryStore (CRUD + extraction + consolidation)
+│   └── alembic/              # schema migrations (shipped in the wheel)
 └── tests/                    # 181 tests, 70% coverage floor
 ```
 

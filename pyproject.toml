@@ -2,7 +2,24 @@
 name = "context-management"
 version = "0.1.0"
 description = "Platform-agnostic context management module for enterprise agentic systems"
+readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [
+    { name = "Kiran Shivaraju", email = "kiranshivaraju2020@gmail.com" },
+]
+keywords = ["llm", "memory", "context", "conversation", "agent", "anthropic", "openai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg",
@@ -11,6 +28,12 @@ dependencies = [
     "alembic",
     "anthropic>=0.84.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/kiranshivaraju/context-management"
+Repository = "https://github.com/kiranshivaraju/context-management"
+Issues = "https://github.com/kiranshivaraju/context-management/issues"
+Changelog = "https://github.com/kiranshivaraju/context-management/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 anthropic = ["anthropic"]

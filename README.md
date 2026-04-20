@@ -281,4 +281,4 @@ All changes need:
 
 ## License
 
-TBD.
+Licensed under the [Apache License 2.0](./LICENSE). See [NOTICE](./NOTICE) for attribution.
